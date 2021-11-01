@@ -1,29 +1,33 @@
-import string, random, argparse, threading, time
-from colorama import Fore, Style
-chars = string.ascii_letters + string.digits
+import string, time, argparse, random, colorama
+from itertools import chain, product
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-l", "--length", help="Length Of Randomly Generated Password", required=False)
 parser.add_argument("-p", "--password", help="Password To Crack", required=False)
 args = parser.parse_args()
+
 print(Fore.YELLOW + "___________________    _____  _________  ____  __._____________________ \n\_   ___ \______   \  /  _  \ \_   ___ \|    |/ _|\_   _____/\______   \ \n/    \  \/|       _/ /  /_\  \/    \  \/|      <   |    __)_  |       _/ \n\     \___|    |   \/    |    \     \___|    |  \  |        \ |    |   \ \n \______  /____|_  /\____|__  /\______  /____|__ \/_______  / |____|_  / \n        \/       \/         \/        \/        \/        \/         \/ ")
-def thread():
-    start = time.time()
-    guess = ""
+
+def crack(passwd):
+    results = (''.join(candidate) for candidate in chain.from_iterable(product(string.printable, repeat=i) for i in range(1, len(passwd) + 1)))
     guesses = 0
-    combi = len(chars)**len(pwd)
-    print(Fore.YELLOW + f"Possible Combinations: {combi}\nStarts Cracking..." + Style.RESET_ALL)
-    while guess != pwd:
-        guess = "".join(random.choice(chars) for i in range(len(pwd)))
+    start = time.time()
+    for result in results:
         guesses += 1
-    print(Fore.GREEN + f"Cracking Done\nPassword Was \"{guess}\"\nAmount Of Guesses: {guesses}\nTime: {time.time() - start} sec")
-try:
-    if args.password:
-        pwd = args.password
-        threading.Thread(target=thread).start()
-    if args.length:
-        length = int(args.length)
-        pwd = "".join(random.choice(chars) for i in range(length))
-        threading.Thread(target=thread).start()
-except:
-    length = int(input(Fore.YELLOW + "Enter Password Length: " + Style.RESET_ALL))
-    threading.Thread(target=thread).start()
+        if result == passwd:
+            end = time.time()
+            if len(result) < 5:
+                print(f"{'*'*8}\n!CRACKED!\nPassword: \"{result}\"\nGuesses: {guesses}\nTime: {round(end - start)} sec\nGusses Per Second: {round(guesses / (end - start))}\n*** NOTE: If This Is A Real Password That You, Or Someone You Know Uses. Then You Should Change It ;) ***\n{'*'*8}")
+            else:
+                print(f"{'*'*8}\n!CRACKED!\nPassword: \"{result}\"\nGuesses: {guesses}\nTime: {round(end - start)} sec\nGusses Per Second: {round(guesses / (end - start))}\n{'*'*8}")
+            break
+
+if args.password and not args.length:
+	crack(args.passwd)
+elif args.length and not args.password:
+	crack(''.join(random.choice(string.printable) for i in range(int(args.length))))
+elif not args.length and not args.password:
+	passwd = input("Enter Password To Bruteforce: ")
+	crack(passwd)
+else:
+	print("Please Don't Use Both '-p' And '-l' At Once.")
