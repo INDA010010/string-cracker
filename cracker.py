@@ -23,7 +23,7 @@ def crack(passwd):
             break
 
 if args.password and not args.length:
-	crack(args.passwd)
+	crack(args.password)
 elif args.length and not args.password:
 	crack(''.join(random.choice(string.printable) for i in range(int(args.length))))
 elif not args.length and not args.password:
