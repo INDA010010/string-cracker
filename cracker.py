@@ -1,4 +1,5 @@
-import string, time, argparse, random, colorama
+import string, time, argparse, random
+from colorama import *
 from itertools import chain, product
 
 parser = argparse.ArgumentParser()
